@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="theme-color" content="#141210" />
+<title>Antrenman Programı</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600&family=Space+Mono:wght@700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --page:#141210;--card:#1f1d19;--card-line:#2c2a24;
+    --ink:#ede9df;--muted:#8d897d;--faint:#5e5b52;
+    --accent:#ff5a1f;--accent-dim:#7a3318;--accent-bg:#241c16;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{background:var(--page);}
+  body{font-family:"Inter",system-ui,-apple-system,sans-serif;color:var(--ink);min-height:100vh;
+    padding:max(28px,env(safe-area-inset-top)) 16px calc(48px + env(safe-area-inset-bottom));
+    -webkit-font-smoothing:antialiased;}
+  .wrap{max-width:560px;margin:0 auto;}
+  header{margin-bottom:18px;}
+  .kicker{font-family:"Space Mono",monospace;font-size:11px;letter-spacing:.28em;
+    text-transform:uppercase;color:var(--accent);margin-bottom:8px;}
+  h1{font-family:"Oswald",sans-serif;font-weight:700;font-size:34px;line-height:1;
+    letter-spacing:.01em;text-transform:uppercase;}
+  .total{margin-top:14px;display:flex;align-items:center;gap:12px;
+    font-family:"Space Mono",monospace;font-size:12px;color:var(--muted);}
+  .total-bar{flex:1;height:4px;border-radius:99px;background:var(--card-line);overflow:hidden;}
+  .total-bar i{display:block;height:100%;width:0;background:var(--accent);
+    transition:width .45s cubic-bezier(.4,0,.2,1);}
+  .tabs{display:flex;gap:8px;margin-bottom:18px;}
+  .tab{flex:1;background:var(--card);border:1px solid var(--card-line);border-radius:12px;
+    padding:12px 6px;cursor:pointer;text-align:center;color:var(--muted);
+    transition:border-color .18s,color .18s,background .18s;-webkit-tap-highlight-color:transparent;}
+  .tab .t-id{font-family:"Oswald",sans-serif;font-weight:700;font-size:16px;
+    text-transform:uppercase;letter-spacing:.06em;display:block;color:var(--ink);}
+  .tab .t-sub{font-family:"Space Mono",monospace;font-size:10px;letter-spacing:.1em;
+    text-transform:uppercase;display:block;margin-top:3px;}
+  .tab .t-count{font-family:"Space Mono",monospace;font-size:11px;display:block;margin-top:6px;color:var(--faint);}
+  .tab.active{border-color:var(--accent);background:var(--accent-bg);}
+  .tab.active .t-sub,.tab.active .t-count{color:var(--accent);}
+  .day{background:var(--card);border:1px solid var(--card-line);border-radius:16px;padding:18px 16px 8px;}
+  .day-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:4px;}
+  .day-title{font-family:"Oswald",sans-serif;font-weight:600;font-size:18px;
+    letter-spacing:.04em;text-transform:uppercase;}
+  .day-title span{color:var(--accent);}
+  .count{font-family:"Space Mono",monospace;font-size:12px;color:var(--muted);white-space:nowrap;}
+  .day-bar{height:3px;border-radius:99px;background:var(--card-line);overflow:hidden;margin:10px 0 4px;}
+  .day-bar i{display:block;height:100%;width:0;background:var(--accent);transition:width .4s cubic-bezier(.4,0,.2,1);}
+  ul{list-style:none;}
+  .row{display:flex;align-items:center;gap:14px;padding:14px 4px;border-bottom:1px solid var(--card-line);
+    cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent;transition:opacity .2s;}
+  .row:last-child{border-bottom:none;}
+  .box{flex:none;width:26px;height:26px;border-radius:8px;border:2px solid var(--faint);position:relative;
+    transition:border-color .18s,background .18s,transform .12s;}
+  .box svg{position:absolute;inset:0;margin:auto;width:14px;height:14px;stroke:var(--page);stroke-width:3.4;
+    fill:none;stroke-dasharray:20;stroke-dashoffset:20;transition:stroke-dashoffset .22s ease .04s;}
+  .name{flex:1;font-size:16px;font-weight:500;line-height:1.25;transition:color .18s;}
+  .num{color:var(--faint);font-family:"Space Mono",monospace;font-size:13px;margin-right:2px;}
+  .reps{flex:none;font-family:"Space Mono",monospace;font-weight:700;font-size:13px;color:var(--muted);
+    background:#191713;border:1px solid var(--card-line);padding:5px 9px;border-radius:7px;
+    letter-spacing:.02em;transition:color .18s,border-color .18s;}
+  .row.done .box{background:var(--accent);border-color:var(--accent);}
+  .row.done .box svg{stroke-dashoffset:0;}
+  .row.done .name{color:var(--faint);text-decoration:line-through;text-decoration-color:var(--accent-dim);}
+  .row.done .reps{color:var(--accent-dim);border-color:var(--accent-dim);}
+  .row:active .box{transform:scale(.88);}
+  .foot{margin-top:24px;display:flex;justify-content:center;}
+  .reset{font-family:"Space Mono",monospace;font-size:12px;letter-spacing:.08em;color:var(--muted);
+    background:none;border:1px solid var(--card-line);padding:11px 20px;border-radius:99px;cursor:pointer;
+    text-transform:uppercase;transition:color .18s,border-color .18s;}
+  .reset:hover,.reset:focus-visible{color:var(--accent);border-color:var(--accent-dim);outline:none;}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px;}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="kicker">Push / Pull · 2 Gün</div>
+    <h1>Antrenman<br>Programı</h1>
+    <div class="total"><span id="totalLabel">0 / 0</span><div class="total-bar"><i id="totalFill"></i></div></div>
+  </header>
+  <nav class="tabs" id="tabs"></nav>
+  <div id="app"></div>
+  <div class="foot"><button class="reset" id="reset">Bu Günü Sıfırla</button></div>
+</div>
+<script>
+const PROGRAM = [
+  { id:"A", tab:"Push", title:"Workout A — Push", accent:"Dominant", items:[
+    ["Squat","5×5"],["Bench Press","5×5"],["Overhead Press","5×5"],
+    ["Dips","5×5"],["Machine Fly","3×8-10"],["Triceps Pushdown","3×8-10"],
+  ]},
+  { id:"B", tab:"Pull", title:"Workout B — Pull", accent:"Dominant", items:[
+    ["Deadlift","1×5"],["Close-Grip Lat Pulldown","3×8-10"],["Straight-Arm Pulldown","3×8-10"],
+    ["Bar Machine Row","3×8-10"],["Face Pull","3×8-10"],["Lateral Raise","3×8-10"],["Hammer Curl","3×8-10"],
+  ]},
+];
+const KEY="antrenman-ben-v1";
+const TOTAL=PROGRAM.reduce((n,d)=>n+d.items.length,0);
+let state={},active="A";
+const check=`<svg viewBox="0 0 24 24"><polyline points="4 12 10 18 20 6"/></svg>`;
+function load(){try{const r=localStorage.getItem(KEY);if(r){const o=JSON.parse(r);state=o.state||{};active=o.active||"A";}}catch(e){state={};active="A";}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify({state,active}));}catch(e){}}
+function dayDone(d){let c=0;for(let i=0;i<d.items.length;i++)if(state[d.id+"-"+i])c++;return c;}
+function renderTabs(){
+  document.getElementById("tabs").innerHTML=PROGRAM.map(d=>{
+    const c=dayDone(d);
+    return `<button class="tab ${d.id===active?"active":""}" data-day="${d.id}">
+      <span class="t-id">${d.id}</span><span class="t-sub">${d.tab}</span>
+      <span class="t-count" id="tc-${d.id}">${c}/${d.items.length}</span></button>`;
+  }).join("");
+  document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>{active=t.dataset.day;save();renderTabs();renderDay();}));
+}
+function renderDay(){
+  const day=PROGRAM.find(d=>d.id===active);
+  const rows=day.items.map((it,i)=>{const k=day.id+"-"+i;
+    return `<li class="row${state[k]?" done":""}" data-key="${k}" role="checkbox" tabindex="0" aria-checked="${!!state[k]}">
+      <span class="box">${check}</span><span class="name"><span class="num">${i+1}.</span>${it[0]}</span>
+      <span class="reps">${it[1]}</span></li>`;}).join("");
+  document.getElementById("app").innerHTML=`<section class="day">
+    <div class="day-head"><div class="day-title">${day.title} <span>${day.accent}</span></div>
+    <div class="count" id="dayCount"></div></div>
+    <div class="day-bar"><i id="dayFill"></i></div><ul>${rows}</ul></section>`;
+  document.querySelectorAll(".row").forEach(row=>{
+    row.addEventListener("click",()=>toggle(row));
+    row.addEventListener("keydown",e=>{if(e.key===" "||e.key==="Enter"){e.preventDefault();toggle(row);}});
+  });
+  updateMeters();
+}
+function toggle(row){const k=row.dataset.key;state[k]=!state[k];
+  row.classList.toggle("done",!!state[k]);row.setAttribute("aria-checked",!!state[k]);updateMeters();save();}
+function updateMeters(){
+  const day=PROGRAM.find(d=>d.id===active);const c=dayDone(day),n=day.items.length;
+  document.getElementById("dayCount").textContent=c+" / "+n;
+  document.getElementById("dayFill").style.width=(c/n*100)+"%";
+  const tc=document.getElementById("tc-"+active);if(tc)tc.textContent=c+"/"+n;
+  let total=0;PROGRAM.forEach(d=>total+=dayDone(d));
+  document.getElementById("totalLabel").textContent=total+" / "+TOTAL;
+  document.getElementById("totalFill").style.width=(total/TOTAL*100)+"%";
+}
+document.getElementById("reset").addEventListener("click",()=>{
+  const day=PROGRAM.find(d=>d.id===active);day.items.forEach((_,i)=>{delete state[day.id+"-"+i];});
+  save();renderTabs();renderDay();});
+load();renderTabs();renderDay();
+</script>
+</body>
+</html>
