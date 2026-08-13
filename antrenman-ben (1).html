@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="theme-color" content="#141210" />
+<title>Antrenman Programı</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --page:#141210;--card:#1f1d19;--card-line:#2c2a24;
+    --ink:#ede9df;--muted:#8d897d;--faint:#5e5b52;
+    --accent:#ff5a1f;--accent-dim:#7a3318;--accent-bg:#241c16;--field:#191713;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{background:var(--page);}
+  body{font-family:"Inter",system-ui,-apple-system,sans-serif;color:var(--ink);min-height:100vh;
+    padding:max(28px,env(safe-area-inset-top)) 16px calc(48px + env(safe-area-inset-bottom));
+    -webkit-font-smoothing:antialiased;}
+  .wrap{max-width:560px;margin:0 auto;}
+  header{margin-bottom:18px;}
+  .kicker{font-family:"Space Mono",monospace;font-size:11px;letter-spacing:.28em;
+    text-transform:uppercase;color:var(--accent);margin-bottom:8px;}
+  h1{font-family:"Oswald",sans-serif;font-weight:700;font-size:34px;line-height:1;
+    letter-spacing:.01em;text-transform:uppercase;}
+  .total{margin-top:14px;display:flex;align-items:center;gap:12px;
+    font-family:"Space Mono",monospace;font-size:12px;color:var(--muted);}
+  .total-bar{flex:1;height:4px;border-radius:99px;background:var(--card-line);overflow:hidden;}
+  .total-bar i{display:block;height:100%;width:0;background:var(--accent);
+    transition:width .45s cubic-bezier(.4,0,.2,1);}
+  .tabs{display:flex;gap:8px;margin-bottom:18px;}
+  .tab{flex:1;background:var(--card);border:1px solid var(--card-line);border-radius:12px;
+    padding:12px 6px;cursor:pointer;text-align:center;color:var(--muted);
+    transition:border-color .18s,color .18s,background .18s;-webkit-tap-highlight-color:transparent;}
+  .tab .t-id{font-family:"Oswald",sans-serif;font-weight:700;font-size:16px;
+    text-transform:uppercase;letter-spacing:.06em;display:block;color:var(--ink);}
+  .tab .t-sub{font-family:"Space Mono",monospace;font-size:10px;letter-spacing:.1em;
+    text-transform:uppercase;display:block;margin-top:3px;}
+  .tab .t-count{font-family:"Space Mono",monospace;font-size:11px;display:block;margin-top:6px;color:var(--faint);}
+  .tab.active{border-color:var(--accent);background:var(--accent-bg);}
+  .tab.active .t-sub,.tab.active .t-count{color:var(--accent);}
+  .day{background:var(--card);border:1px solid var(--card-line);border-radius:16px;padding:18px 16px 8px;}
+  .day-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:4px;}
+  .day-title{font-family:"Oswald",sans-serif;font-weight:600;font-size:18px;
+    letter-spacing:.04em;text-transform:uppercase;}
+  .day-title span{color:var(--accent);}
+  .count{font-family:"Space Mono",monospace;font-size:12px;color:var(--muted);white-space:nowrap;}
+  .day-bar{height:3px;border-radius:99px;background:var(--card-line);overflow:hidden;margin:10px 0 4px;}
+  .day-bar i{display:block;height:100%;width:0;background:var(--accent);transition:width .4s cubic-bezier(.4,0,.2,1);}
+  ul{list-style:none;}
+  .row{display:flex;align-items:flex-start;gap:14px;padding:16px 4px;border-bottom:1px solid var(--card-line);
+    -webkit-tap-highlight-color:transparent;}
+  .row:last-child{border-bottom:none;}
+  .box{flex:none;width:26px;height:26px;border-radius:8px;border:2px solid var(--faint);position:relative;
+    margin-top:1px;cursor:pointer;transition:border-color .18s,background .18s,transform .12s;}
+  .box svg{position:absolute;inset:0;margin:auto;width:14px;height:14px;stroke:var(--page);stroke-width:3.4;
+    fill:none;stroke-dasharray:20;stroke-dashoffset:20;transition:stroke-dashoffset .22s ease .04s;}
+  .body{flex:1;min-width:0;}
+  .name{font-size:16px;font-weight:500;line-height:1.25;cursor:pointer;transition:color .18s;}
+  .num{color:var(--faint);font-family:"Space Mono",monospace;font-size:13px;margin-right:2px;}
+  .fields{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap;}
+  .field{display:flex;align-items:center;gap:7px;}
+  .field label{font-family:"Space Mono",monospace;font-size:10px;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--faint);}
+  .field input{width:86px;background:var(--field);border:1px solid var(--card-line);border-radius:8px;
+    color:var(--ink);font-family:"Space Mono",monospace;font-size:14px;font-weight:700;padding:8px 10px;
+    transition:border-color .18s;}
+  .field.reps input{width:108px;}
+  .field input::placeholder{color:var(--faint);font-weight:400;}
+  .field input:focus{outline:none;border-color:var(--accent);}
+  .row.done .box{background:var(--accent);border-color:var(--accent);}
+  .row.done .box svg{stroke-dashoffset:0;}
+  .row.done .name{color:var(--faint);text-decoration:line-through;text-decoration-color:var(--accent-dim);}
+  .box:active{transform:scale(.88);}
+  .foot{margin-top:24px;display:flex;justify-content:center;}
+  .reset{font-family:"Space Mono",monospace;font-size:12px;letter-spacing:.08em;color:var(--muted);
+    background:none;border:1px solid var(--card-line);padding:11px 20px;border-radius:99px;cursor:pointer;
+    text-transform:uppercase;transition:color .18s,border-color .18s;}
+  .reset:hover,.reset:focus-visible{color:var(--accent);border-color:var(--accent-dim);outline:none;}
+  .hint{text-align:center;margin-top:12px;font-size:11px;color:var(--faint);line-height:1.5;}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px;}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="kicker">Push / Pull · 2 Gün</div>
+    <h1>Antrenman<br>Programı</h1>
+    <div class="total"><span id="totalLabel">0 / 0</span><div class="total-bar"><i id="totalFill"></i></div></div>
+  </header>
+  <nav class="tabs" id="tabs"></nav>
+  <div id="app"></div>
+  <div class="foot"><button class="reset" id="reset">Bu Günün Tiklerini Sıfırla</button></div>
+  <p class="hint">Set×Tekrar ve kg alanlarına yazdıkların kaydolur.<br>Sıfırla sadece tikleri temizler, ağırlıkların kalır.</p>
+</div>
+<script>
+const PROGRAM = [
+  { id:"A", tab:"Push", title:"Workout A — Push", accent:"Dominant", items:[
+    "Squat","Bench Press","Shoulder Press","Chest Press",
+    "Machine Fly","Triceps Pushdown","Cable Crunch",
+  ]},
+  { id:"B", tab:"Pull", title:"Workout B — Pull", accent:"Dominant", items:[
+    "Deadlift","Lat Pulldown","Chest-Supported Row","Straight-Arm Pulldown",
+    "Face Pull","Lateral Raise","Hammer Curl (Dumbbell)",
+  ]},
+];
+const KEY="antrenman-ben-v2";
+const TOTAL=PROGRAM.reduce((n,d)=>n+d.items.length,0);
+let store={},active="A";
+const check=`<svg viewBox="0 0 24 24"><polyline points="4 12 10 18 20 6"/></svg>`;
+
+function get(k){ return store[k] || {done:false,reps:"",wt:""}; }
+function set(k,v){ store[k]=v; }
+
+function load(){try{const r=localStorage.getItem(KEY);if(r){const o=JSON.parse(r);store=o.store||{};active=o.active||"A";}}catch(e){store={};active="A";}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify({store,active}));}catch(e){}}
+function dayDone(d){let c=0;for(let i=0;i<d.items.length;i++)if(get(d.id+"-"+i).done)c++;return c;}
+
+function renderTabs(){
+  document.getElementById("tabs").innerHTML=PROGRAM.map(d=>{
+    const c=dayDone(d);
+    return `<button class="tab ${d.id===active?"active":""}" data-day="${d.id}">
+      <span class="t-id">${d.id}</span><span class="t-sub">${d.tab}</span>
+      <span class="t-count" id="tc-${d.id}">${c}/${d.items.length}</span></button>`;
+  }).join("");
+  document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>{active=t.dataset.day;save();renderTabs();renderDay();}));
+}
+
+function renderDay(){
+  const day=PROGRAM.find(d=>d.id===active);
+  const rows=day.items.map((name,i)=>{
+    const k=day.id+"-"+i; const st=get(k);
+    return `<li class="row${st.done?" done":""}" data-key="${k}">
+      <span class="box" data-toggle role="checkbox" tabindex="0" aria-checked="${st.done}">${check}</span>
+      <div class="body">
+        <div class="name" data-toggle><span class="num">${i+1}.</span>${name}</div>
+        <div class="fields">
+          <div class="field reps">
+            <label>Set×Tekrar</label>
+            <input type="text" data-f="reps" value="${st.reps.replace(/"/g,'&quot;')}" placeholder="3×10" inputmode="text" autocomplete="off">
+          </div>
+          <div class="field">
+            <label>kg</label>
+            <input type="text" data-f="wt" value="${st.wt.replace(/"/g,'&quot;')}" placeholder="0" inputmode="decimal" autocomplete="off">
+          </div>
+        </div>
+      </div>
+    </li>`;
+  }).join("");
+  document.getElementById("app").innerHTML=`<section class="day">
+    <div class="day-head"><div class="day-title">${day.title} <span>${day.accent}</span></div>
+    <div class="count" id="dayCount"></div></div>
+    <div class="day-bar"><i id="dayFill"></i></div><ul>${rows}</ul></section>`;
+
+  document.querySelectorAll(".row").forEach(row=>{
+    const k=row.dataset.key;
+    row.querySelectorAll("[data-toggle]").forEach(el=>{
+      el.addEventListener("click",()=>toggle(k,row));
+      el.addEventListener("keydown",e=>{if(e.key===" "||e.key==="Enter"){e.preventDefault();toggle(k,row);}});
+    });
+    row.querySelectorAll("input").forEach(inp=>{
+      inp.addEventListener("input",()=>{const st=get(k);st[inp.dataset.f]=inp.value;set(k,st);save();});
+    });
+  });
+  updateMeters();
+}
+
+function toggle(k,row){
+  const st=get(k); st.done=!st.done; set(k,st); save();
+  row.classList.toggle("done",st.done);
+  const box=row.querySelector(".box"); if(box) box.setAttribute("aria-checked",st.done);
+  updateMeters();
+}
+
+function updateMeters(){
+  const day=PROGRAM.find(d=>d.id===active);const c=dayDone(day),n=day.items.length;
+  document.getElementById("dayCount").textContent=c+" / "+n;
+  document.getElementById("dayFill").style.width=(c/n*100)+"%";
+  const tc=document.getElementById("tc-"+active);if(tc)tc.textContent=c+"/"+n;
+  let total=0;PROGRAM.forEach(d=>total+=dayDone(d));
+  document.getElementById("totalLabel").textContent=total+" / "+TOTAL;
+  document.getElementById("totalFill").style.width=(total/TOTAL*100)+"%";
+}
+
+document.getElementById("reset").addEventListener("click",()=>{
+  const day=PROGRAM.find(d=>d.id===active);
+  day.items.forEach((_,i)=>{const st=get(day.id+"-"+i);st.done=false;set(day.id+"-"+i,st);});
+  save();renderTabs();renderDay();
+});
+
+load();renderTabs();renderDay();
+</script>
+</body>
+</html>
